@@ -1,0 +1,38 @@
+name: Java CI with Maven
+
+# 1. Kích hoạt (trigger) khi có sự kiện push và pull_request
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Lấy mã nguồn từ repository
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # Cài đặt môi trường Java (ở đây ví dụ dùng JDK 17, bạn có thể đổi theo project)
+    - name: Set up JDK 25
+      uses: actions/setup-java@v4
+      with:
+        java-version: '25'
+        distribution: 'temurin'
+        cache: maven
+
+    # 2. Thực thi vòng đời build của Maven (test và package)
+    # Lệnh 'package' sẽ tự động chạy phase 'test' trước khi đóng gói file .jar
+    - name: Build with Maven (Test and Package)
+      run: mvn clean package
+
+    # 3. Sử dụng upload-artifact để lưu giữ tệp .jar vừa được tạo ra
+    - name: Upload JAR Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: application-jar
+        path: target/*.jar
+        retention-days: 5 # Tùy chọn: Giữ file trong 5 ngày
